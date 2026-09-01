@@ -1,0 +1,604 @@
+<title>Backprop to Frontier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    --paper:      #F4F5F7;
+    --surface:    #FFFFFF;
+    --ink:        #14161D;
+    --muted:      #5C6273;
+    --faint:      #8A90A0;
+    --rule:       #DDE0E6;
+    --accent:     #2C3FD6;
+    --accent-soft:#E5E8FB;
+    --fill:       #C8E64B;
+    --fill-ink:   #2E3A08;
+    --shadow:     0 1px 2px rgba(20,22,29,.05), 0 8px 24px -12px rgba(20,22,29,.14);
+
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body:    "Newsreader", Georgia, "Times New Roman", serif;
+    --mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1016;
+      --surface:    #161922;
+      --ink:        #E8EAF0;
+      --muted:      #949CB0;
+      --faint:      #6D7488;
+      --rule:       #262B38;
+      --accent:     #7C8CFF;
+      --accent-soft:#1D2136;
+      --fill:       #D6F25E;
+      --fill-ink:   #1B2205;
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1016;
+    --surface:    #161922;
+    --ink:        #E8EAF0;
+    --muted:      #949CB0;
+    --faint:      #6D7488;
+    --rule:       #262B38;
+    --accent:     #7C8CFF;
+    --accent-soft:#1D2136;
+    --fill:       #D6F25E;
+    --fill-ink:   #1B2205;
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- sticky meter ---------- */
+  .meter {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .meter-inner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 24px; max-width: 880px; margin: 0 auto;
+  }
+  .meter-name {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    white-space: nowrap;
+  }
+  .meter-track {
+    flex: 1; height: 8px; background: var(--rule); border-radius: 99px; overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%; width: 0%; background: var(--fill);
+    border-radius: 99px; transition: width .45s cubic-bezier(.4,0,.2,1);
+  }
+  .meter-pct {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right;
+  }
+  .theme-btn {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    background: none; border: 1px solid var(--rule); color: var(--muted);
+    border-radius: 99px; padding: 4px 10px; cursor: pointer; line-height: 1;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--faint); }
+
+  /* ---------- hero ---------- */
+  header.hero { padding: 72px 0 56px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent);
+    margin: 0 0 20px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(44px, 8vw, 80px); line-height: .95;
+    letter-spacing: -.035em; margin: 0 0 24px; text-wrap: balance;
+  }
+  .lede {
+    font-size: 20px; line-height: 1.55; color: var(--muted);
+    max-width: 62ch; margin: 0 0 32px;
+  }
+  .lede strong { color: var(--ink); font-weight: 500; }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid var(--rule); }
+  .stat {
+    padding: 16px 28px 16px 0; margin-right: 28px;
+    border-right: 1px solid var(--rule);
+  }
+  .stat:last-child { border-right: 0; margin-right: 0; }
+  .stat-n {
+    font-family: var(--display); font-weight: 700; font-size: 30px;
+    line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+    display: block; margin-bottom: 4px;
+  }
+  .stat-l {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
+  }
+
+  /* ---------- section headings ---------- */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 16px;
+    margin: 64px 0 8px; padding-bottom: 12px; border-bottom: 2px solid var(--ink);
+  }
+  .sec-head h2 {
+    font-family: var(--display); font-weight: 700; font-size: 26px;
+    letter-spacing: -.02em; margin: 0;
+  }
+  .sec-head .note {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--faint); margin-left: auto;
+    white-space: nowrap;
+  }
+  .sec-intro { color: var(--muted); max-width: 66ch; margin: 16px 0 28px; }
+
+  /* ---------- stage card ---------- */
+  .stage {
+    display: grid; grid-template-columns: 84px 1fr; gap: 0 24px;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; box-shadow: var(--shadow);
+    padding: 28px; margin-bottom: 20px;
+  }
+  .stage.is-done { border-color: color-mix(in srgb, var(--fill) 55%, var(--rule)); }
+
+  .stage-num {
+    font-family: var(--display); font-weight: 800;
+    font-size: 60px; line-height: .8; letter-spacing: -.05em;
+    color: var(--rule); font-variant-numeric: tabular-nums;
+    transition: color .3s ease;
+  }
+  .stage.is-done .stage-num { color: var(--fill); }
+  .stage-num.optional { font-size: 34px; letter-spacing: -.02em; }
+
+  .stage-head h3 {
+    font-family: var(--display); font-weight: 700; font-size: 24px;
+    letter-spacing: -.02em; margin: 0 0 6px; text-wrap: balance;
+  }
+  .stage-src { margin: 0 0 4px; font-size: 16px; }
+  .stage-why { color: var(--muted); font-size: 16px; margin: 10px 0 18px; max-width: 60ch; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .tag {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 3px;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .tag.free { background: color-mix(in srgb, var(--fill) 28%, transparent); color: var(--fill-ink); }
+  .tag.time { background: none; border: 1px solid var(--rule); color: var(--muted); }
+  :root[data-theme="dark"] .tag.free { color: var(--fill); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.free { color: var(--fill); } }
+
+  .stage-bar {
+    height: 4px; background: var(--rule); border-radius: 99px;
+    overflow: hidden; margin: 0 0 18px;
+  }
+  .stage-bar i {
+    display: block; height: 100%; width: 0%; background: var(--fill);
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ---------- checklist ---------- */
+  ul.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  ul.checks li { border-top: 1px solid var(--rule); }
+  ul.checks li:first-child { border-top: 0; }
+
+  label.check {
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 12px;
+    align-items: start; padding: 11px 0; cursor: pointer;
+  }
+  label.check input { position: absolute; opacity: 0; pointer-events: none; }
+  .box {
+    width: 20px; height: 20px; margin-top: 2px; border-radius: 3px;
+    border: 1.5px solid var(--faint); background: var(--surface);
+    display: grid; place-items: center; transition: background .18s ease, border-color .18s ease;
+  }
+  .box svg { width: 13px; height: 13px; stroke: var(--fill-ink); stroke-width: 3; fill: none;
+             stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6);
+             transition: opacity .18s ease, transform .18s cubic-bezier(.3,1.6,.5,1); }
+  label.check:hover .box { border-color: var(--accent); }
+  input:checked + .box { background: var(--fill); border-color: var(--fill); }
+  input:checked + .box svg { opacity: 1; transform: scale(1); }
+  input:focus-visible + .box { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .check-text { font-size: 16px; line-height: 1.5; }
+  .check-text small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+  input:checked ~ .check-text { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--rule); }
+  input:checked ~ .check-text small { text-decoration: none; }
+  .check-time {
+    font-family: var(--mono); font-size: 11px; color: var(--faint);
+    font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: 4px;
+  }
+
+  /* ---------- books ---------- */
+  .books { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .book {
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 14px;
+    align-items: start; padding: 18px 0; border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+  }
+  .book-title { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .book-author { color: var(--muted); font-size: 15px; }
+  .book-note { color: var(--muted); font-size: 15px; margin-top: 6px; max-width: 58ch; }
+  .book-meta { display: flex; gap: 8px; align-items: center; padding-top: 3px; }
+  .book input:checked ~ div .book-title { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--rule); }
+
+  /* ---------- link list ---------- */
+  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px;
+           background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+  .link-cell { background: var(--surface); padding: 16px 18px; }
+  .link-cell a { font-family: var(--display); font-weight: 700; font-size: 16px;
+                 letter-spacing: -.01em; text-decoration: none; display: block; }
+  .link-cell a:hover { text-decoration: underline; }
+  .link-cell p { margin: 4px 0 0; font-size: 14px; color: var(--muted); line-height: 1.45; }
+
+  /* ---------- footer ---------- */
+  footer {
+    margin: 72px 0 0; padding: 28px 0 60px; border-top: 1px solid var(--rule);
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    font-family: var(--mono); font-size: 11px; color: var(--faint);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .reset {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    background: none; border: 1px solid var(--rule); color: var(--muted);
+    padding: 6px 12px; border-radius: 99px; cursor: pointer; margin-left: auto;
+  }
+  .reset:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 620px) {
+    header.hero { padding: 44px 0 36px; }
+    .stage { grid-template-columns: 1fr; padding: 22px; gap: 0; }
+    .stage-num { font-size: 38px; margin-bottom: 10px; }
+    .stat { padding-right: 20px; margin-right: 20px; }
+    .check-time { display: none; }
+    .meter-name { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="meter">
+  <div class="meter-inner">
+    <span class="meter-name">Backprop &rarr; Frontier</span>
+    <div class="meter-track"><div class="meter-fill" id="topFill"></div></div>
+    <span class="meter-pct" id="topPct">0%</span>
+    <button class="theme-btn" id="themeBtn" type="button">Theme</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">Self-study curriculum &middot; 2026</p>
+    <h1>Backprop to Frontier</h1>
+    <p class="lede">A six-month route from <strong>Andrew Ng's classical ML</strong> to <strong>training language models from scratch</strong>. Everything here is a real course with public materials &mdash; no survey videos, no paid bootcamps. Check items off as you go; progress saves in this browser.</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-n" id="statDone">0</span><span class="stat-l">Items done</span></div>
+      <div class="stat"><span class="stat-n" id="statTotal">0</span><span class="stat-l">Total items</span></div>
+      <div class="stat"><span class="stat-n">5</span><span class="stat-l">Core stages</span></div>
+      <div class="stat"><span class="stat-n">~26</span><span class="stat-l">Weeks part-time</span></div>
+    </div>
+  </header>
+
+  <!-- ================= STAGES ================= -->
+  <div class="sec-head">
+    <h2>The sequence</h2>
+    <span class="note">Order matters &mdash; each stage assumes the last</span>
+  </div>
+  <p class="sec-intro">Stage 0 is optional. Stages 1&ndash;5 run in order: you build the primitives by hand, learn to ship, then go deep on how frontier models are actually trained. Time estimates assume roughly 8&ndash;10 hours a week.</p>
+
+  <!-- Stage 0 -->
+  <section class="stage" data-stage="s0">
+    <div class="stage-num optional">00</div>
+    <div>
+      <div class="stage-head">
+        <h3>Math refresh</h3>
+        <p class="stage-src"><a href="https://mml-book.github.io/" target="_blank" rel="noopener">Mathematics for Machine Learning</a> &middot; <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener">3Blue1Brown</a></p>
+      </div>
+      <div class="tags"><span class="tag free">Free</span><span class="tag time">Optional &middot; 2 weeks</span></div>
+      <p class="stage-why">Skip this unless matrix calculus feels rusty. You need enough linear algebra to read a shape mismatch and enough calculus to trust the chain rule. Nothing more.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-la"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown &mdash; Essence of Linear Algebra<small>15 short videos. Watch at 1.25x.</small></span><span class="check-time">4h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-calc"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown &mdash; Essence of Calculus<small>Chapters 1&ndash;4 are the load-bearing ones.</small></span><span class="check-time">3h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s0-mml"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">MML book, Ch. 2, 5, 6<small>Linear algebra, vector calculus, probability. Free PDF.</small></span><span class="check-time">10h</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Stage 1 -->
+  <section class="stage" data-stage="s1">
+    <div class="stage-num">01</div>
+    <div>
+      <div class="stage-head">
+        <h3>Build the primitives by hand</h3>
+        <p class="stage-src"><a href="https://karpathy.ai/zero-to-hero.html" target="_blank" rel="noopener">Karpathy &mdash; Neural Networks: Zero to Hero</a></p>
+      </div>
+      <div class="tags"><span class="tag free">Free</span><span class="tag">Bottom-up</span><span class="tag time">6 weeks</span></div>
+      <p class="stage-why">The single best bridge from classical ML to modern AI. You write backprop, then a tokenizer, then a GPT, in bare Python and PyTorch. Retype every line &mdash; watching this does nothing.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s1-micrograd"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">micrograd &mdash; backprop from scratch<small>An autograd engine in ~100 lines. <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">repo</a></small></span><span class="check-time">6h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-makemore12"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">makemore, parts 1&ndash;3<small>Bigrams &rarr; MLP &rarr; activations, gradients, BatchNorm.</small></span><span class="check-time">12h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-makemore45"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">makemore, parts 4&ndash;5<small>Manual backprop through the whole net, then WaveNet.</small></span><span class="check-time">8h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-gpt"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Let's build GPT: from scratch, in code<small>The centerpiece. Self-attention, blocks, the full transformer.</small></span><span class="check-time">8h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-tokenizer"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Let's build the GPT Tokenizer<small>BPE. Explains half the weird LLM failure modes you've seen.</small></span><span class="check-time">4h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-nanogpt"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Train nanoGPT yourself, end to end<small>Rent one GPU. Reproduce a small run. <a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noopener">repo</a></small></span><span class="check-time">10h</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Stage 2 -->
+  <section class="stage" data-stage="s2">
+    <div class="stage-num">02</div>
+    <div>
+      <div class="stage-head">
+        <h3>Learn to ship models</h3>
+        <p class="stage-src"><a href="https://course.fast.ai/" target="_blank" rel="noopener">fast.ai &mdash; Practical Deep Learning for Coders</a></p>
+      </div>
+      <div class="tags"><span class="tag free">Free</span><span class="tag">Top-down</span><span class="tag time">8 weeks</span></div>
+      <p class="stage-why">The opposite pedagogy from Stage 1: working model in lesson one, theory later. Doing both is the point &mdash; you get intuition for what actually moves a metric, not just what the math says.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s2-p1a"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 1, lessons 1&ndash;4<small>Vision, deployment, SGD, NLP with transformers.</small></span><span class="check-time">16h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s2-p1b"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 1, lessons 5&ndash;9<small>Tabular, collaborative filtering, convnets, ethics.</small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s2-project"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Ship one model of your own<small>Your data, deployed publicly. This is the item that gets skipped &mdash; don't.</small></span><span class="check-time">12h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s2-p2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 2 &mdash; Stable Diffusion from scratch<small>Rebuilds a diffusion model from the paper up.</small></span><span class="check-time">30h</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Stage 3 -->
+  <section class="stage" data-stage="s3">
+    <div class="stage-num">03</div>
+    <div>
+      <div class="stage-head">
+        <h3>Language modeling, all the way down</h3>
+        <p class="stage-src"><a href="https://stanford-cs336.github.io/" target="_blank" rel="noopener">Stanford CS336 &mdash; Language Modeling from Scratch</a></p>
+      </div>
+      <div class="tags"><span class="tag free">Free materials</span><span class="tag">Hardest</span><span class="tag time">10 weeks</span></div>
+      <p class="stage-why">The nitty-gritty you asked for. Lectures and assignments are public. Students build a tokenizer, a transformer, a training loop, kernels, distributed training and alignment &mdash; nothing imported that could be written. Budget 15h/week and expect it to hurt.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s3-a1"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 1 &mdash; Basics<small>BPE tokenizer, transformer, optimizer, training loop. From zero.</small></span><span class="check-time">35h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 2 &mdash; Systems<small>Triton kernels, FlashAttention, distributed data parallel.</small></span><span class="check-time">30h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a3"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 3 &mdash; Scaling laws<small>Fit a scaling law, then spend a compute budget with it.</small></span><span class="check-time">15h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a4"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 4 &mdash; Data<small>Filtering, dedup, quality classifiers. Where most real gains live.</small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a5"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 5 &mdash; Alignment &amp; RL<small>SFT, then policy-gradient post-training.</small></span><span class="check-time">25h</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Stage 4 -->
+  <section class="stage" data-stage="s4">
+    <div class="stage-num">04</div>
+    <div>
+      <div class="stage-head">
+        <h3>Fill the gaps</h3>
+        <p class="stage-src">Pick one or two &mdash; whichever your work actually needs</p>
+      </div>
+      <div class="tags"><span class="tag free">Free</span><span class="tag">Elective</span><span class="tag time">4 weeks</span></div>
+      <p class="stage-why">By now you can read any of these at speed. Choose by need, not completeness. Reinforcement learning is the one most worth doing even if it isn't obviously relevant &mdash; post-training runs on it.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s4-rl"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">OpenAI &mdash; Spinning Up in Deep RL<small>Best free RL on-ramp, with implementations. <a href="https://spinningup.openai.com/" target="_blank" rel="noopener">spinningup.openai.com</a></small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-cs224n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS224N &mdash; NLP with Deep Learning<small>Lectures on YouTube. <a href="https://web.stanford.edu/class/cs224n/" target="_blank" rel="noopener">course site</a></small></span><span class="check-time">25h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-cs231n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS231N &mdash; Computer Vision<small>Still the reference convnet course. <a href="https://cs231n.stanford.edu/" target="_blank" rel="noopener">cs231n.stanford.edu</a></small></span><span class="check-time">25h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-mit"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">MIT 6.S191 &mdash; Intro to Deep Learning<small>Re-shot every January, so it stays current. <a href="http://introtodeeplearning.com/" target="_blank" rel="noopener">introtodeeplearning.com</a></small></span><span class="check-time">12h</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Stage 5 -->
+  <section class="stage" data-stage="s5">
+    <div class="stage-num">05</div>
+    <div>
+      <div class="stage-head">
+        <h3>Applied work and the live frontier</h3>
+        <p class="stage-src">Hugging Face courses, provider cookbooks, and a weekly paper habit</p>
+      </div>
+      <div class="tags"><span class="tag free">Free</span><span class="tag">Ongoing</span><span class="tag time">Permanent</span></div>
+      <p class="stage-why">Courses lag the field by a year or more. This stage never finishes &mdash; it's the habit that keeps the rest from going stale. One paper a week, read properly, beats fifty skimmed.</p>
+      <div class="stage-bar"><i></i></div>
+      <ul class="checks">
+        <li><label class="check"><input type="checkbox" data-key="s5-hf-llm"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Hugging Face LLM Course<small>Transformers, fine-tuning, datasets. <a href="https://huggingface.co/learn/llm-course" target="_blank" rel="noopener">huggingface.co/learn</a></small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-hf-agents"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Hugging Face Agents Course<small>Tool use, planning loops, agent evaluation.</small></span><span class="check-time">15h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-cookbook"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Work through a provider cookbook<small><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener">Anthropic</a> or <a href="https://github.com/openai/openai-cookbook" target="_blank" rel="noopener">OpenAI</a> &mdash; the practical layer courses skip.</small></span><span class="check-time">10h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-evals"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Build an eval suite for something you shipped<small>The skill that separates people who ship LLM features from people who demo them.</small></span><span class="check-time">15h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-papers"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Read the eight foundational papers<small>Attention Is All You Need, GPT-2/3, InstructGPT, Chinchilla, LoRA, DPO, and one recent frontier model card.</small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-habit"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Establish the weekly paper habit<small>Same slot every week for four weeks straight. Then it sticks.</small></span><span class="check-time">4wk</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= BOOKS ================= -->
+  <div class="sec-head">
+    <h2>Books to download</h2>
+    <span class="note">Five of seven are free and legal</span>
+  </div>
+  <p class="sec-intro">Pick <em>one</em> as your standing reference and read it alongside the stages &mdash; not before them. The free ones are author-published PDFs, not pirated copies.</p>
+
+  <div class="books">
+    <label class="book"><input type="checkbox" data-key="bk-prince"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Understanding Deep Learning</div>
+        <div class="book-author">Simon J.D. Prince &middot; 2023</div>
+        <p class="book-note">The best modern textbook, and the one to pick if you only pick one. Outstanding figures, free PDF plus notebooks. &rarr; <a href="https://udlbook.github.io/udlbook/" target="_blank" rel="noopener">udlbook.github.io/udlbook</a></p>
+      </div>
+      <div class="book-meta"><span class="tag free">Free PDF</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-mml"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Mathematics for Machine Learning</div>
+        <div class="book-author">Deisenroth, Faisal &amp; Ong &middot; 2020</div>
+        <p class="book-note">Only the math you actually need, in the notation the papers use. Pairs with Stage 0. &rarr; <a href="https://mml-book.github.io/" target="_blank" rel="noopener">mml-book.github.io</a></p>
+      </div>
+      <div class="book-meta"><span class="tag free">Free PDF</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-d2l"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Dive into Deep Learning</div>
+        <div class="book-author">Zhang, Lipton, Li &amp; Smola</div>
+        <p class="book-note">Every concept ships with runnable code in PyTorch, JAX and TensorFlow. The best book to have open while coding. &rarr; <a href="https://d2l.ai/" target="_blank" rel="noopener">d2l.ai</a></p>
+      </div>
+      <div class="book-meta"><span class="tag free">Free HTML</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-murphy"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Probabilistic Machine Learning</div>
+        <div class="book-author">Kevin P. Murphy &middot; two volumes</div>
+        <p class="book-note">The encyclopedia. Not a read-through &mdash; a place to look things up when a paper assumes you know them. &rarr; <a href="https://probml.github.io/pml-book/" target="_blank" rel="noopener">probml.github.io/pml-book</a></p>
+      </div>
+      <div class="book-meta"><span class="tag free">Free PDF</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-goodfellow"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Deep Learning</div>
+        <div class="book-author">Goodfellow, Bengio &amp; Courville &middot; 2016</div>
+        <p class="book-note">Predates transformers, so it is history rather than reference &mdash; but Part II on optimization and regularization has not been bettered. &rarr; <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a></p>
+      </div>
+      <div class="book-meta"><span class="tag free">Free HTML</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-raschka"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Build a Large Language Model (From Scratch)</div>
+        <div class="book-author">Sebastian Raschka &middot; 2024</div>
+        <p class="book-note">Reads like Stage 1 in book form. The book is paid; all the code is free and worth cloning either way. &rarr; <a href="https://github.com/rasbt/LLMs-from-scratch" target="_blank" rel="noopener">github.com/rasbt/LLMs-from-scratch</a></p>
+      </div>
+      <div class="book-meta"><span class="tag">Paid &middot; free code</span></div>
+    </label>
+
+    <label class="book"><input type="checkbox" data-key="bk-bishop"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
+      <div>
+        <div class="book-title">Deep Learning: Foundations and Concepts</div>
+        <div class="book-author">Chris Bishop &amp; Hugh Bishop &middot; 2024</div>
+        <p class="book-note">The rigorous option, from the author of the classic PRML. Buy this one only if Prince feels too light. &rarr; <a href="https://www.bishopbook.com/" target="_blank" rel="noopener">bishopbook.com</a></p>
+      </div>
+      <div class="book-meta"><span class="tag">Paid</span></div>
+    </label>
+  </div>
+
+  <!-- ================= STAY CURRENT ================= -->
+  <div class="sec-head">
+    <h2>Staying current</h2>
+    <span class="note">No checkboxes &mdash; these are habits</span>
+  </div>
+  <p class="sec-intro">Courses run 12&ndash;18 months behind the field. These are where the gap gets closed.</p>
+
+  <div class="links">
+    <div class="link-cell"><a href="https://huggingface.co/papers" target="_blank" rel="noopener">HF Daily Papers</a><p>Community-ranked arXiv digest. The lowest-effort way to see what landed this week.</p></div>
+    <div class="link-cell"><a href="https://lilianweng.github.io/" target="_blank" rel="noopener">Lil'Log</a><p>Lilian Weng's long-form explainers. When a topic confuses you, check here first.</p></div>
+    <div class="link-cell"><a href="https://nlp.seas.harvard.edu/annotated-transformer/" target="_blank" rel="noopener">The Annotated Transformer</a><p>The original paper, line by line, next to working code.</p></div>
+    <div class="link-cell"><a href="https://github.com/EleutherAI/cookbook" target="_blank" rel="noopener">EleutherAI Cookbook</a><p>Practical notes on training at scale from people who actually do it.</p></div>
+    <div class="link-cell"><a href="https://github.com/karpathy/nanochat" target="_blank" rel="noopener">karpathy/nanochat</a><p>A full ChatGPT-style pipeline, minimal and readable. Follow the repo for new releases.</p></div>
+    <div class="link-cell"><a href="https://magazine.sebastianraschka.com/" target="_blank" rel="noopener">Ahead of AI</a><p>Raschka's monthly research round-up. Technical enough to be useful, short enough to finish.</p></div>
+  </div>
+
+  <footer>
+    <span>Progress saved locally in this browser</span>
+    <button class="reset" id="resetBtn" type="button">Reset progress</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'btf-progress-v1';
+  var THEME_KEY = 'btf-theme';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"][data-key]'));
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var state = load();
+
+  function render() {
+    var done = 0;
+    boxes.forEach(function (b) { if (b.checked) done++; });
+    var pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+
+    document.getElementById('topFill').style.width = pct + '%';
+    document.getElementById('topPct').textContent = pct + '%';
+    document.getElementById('statDone').textContent = done;
+    document.getElementById('statTotal').textContent = boxes.length;
+
+    Array.prototype.forEach.call(document.querySelectorAll('.stage'), function (stage) {
+      var local = Array.prototype.slice.call(stage.querySelectorAll('input[type="checkbox"]'));
+      var d = local.filter(function (b) { return b.checked; }).length;
+      var p = local.length ? Math.round((d / local.length) * 100) : 0;
+      var bar = stage.querySelector('.stage-bar i');
+      if (bar) bar.style.width = p + '%';
+      stage.classList.toggle('is-done', local.length > 0 && d === local.length);
+    });
+  }
+
+  boxes.forEach(function (b) {
+    if (state[b.dataset.key]) b.checked = true;
+    b.addEventListener('change', function () {
+      if (b.checked) { state[b.dataset.key] = 1; } else { delete state[b.dataset.key]; }
+      save(state);
+      render();
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!window.confirm('Clear every checked item? This cannot be undone.')) return;
+    state = {};
+    save(state);
+    boxes.forEach(function (b) { b.checked = false; });
+    render();
+  });
+
+  var root = document.documentElement;
+  try {
+    var stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'dark' || stored === 'light') root.setAttribute('data-theme', stored);
+  } catch (e) {}
+
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var isDark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.hasAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  });
+
+  render();
+})();
+</script>
