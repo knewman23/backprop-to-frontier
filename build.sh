@@ -13,6 +13,18 @@
   printf '%s\n' '<meta name="description" content="A tracked six-month curriculum from backpropagation to frontier LLM research.">'
   printf '%s\n' '<meta name="author" content="Krys Newman">'
   printf '%s\n' '<link rel="canonical" href="https://knewman23.github.io/backprop-to-frontier/">'
+  # Link previews: iMessage, Slack and the rest read these. og.png is a
+  # 1200x630 capture of this page's own header -- regenerate it when the
+  # hero changes.
+  printf '%s\n' '<meta property="og:type" content="website">'
+  printf '%s\n' '<meta property="og:title" content="Backprop to Frontier">'
+  printf '%s\n' '<meta property="og:description" content="A tracked six-month curriculum from backpropagation to frontier LLM research.">'
+  printf '%s\n' '<meta property="og:url" content="https://knewman23.github.io/backprop-to-frontier/">'
+  printf '%s\n' '<meta property="og:image" content="https://knewman23.github.io/backprop-to-frontier/og.png">'
+  printf '%s\n' '<meta property="og:image:width" content="1200">'
+  printf '%s\n' '<meta property="og:image:height" content="630">'
+  printf '%s\n' '<meta property="og:image:alt" content="Backprop to Frontier: a six-month self-study curriculum, 35 tracked items across five stages.">'
+  printf '%s\n' '<meta name="twitter:card" content="summary_large_image">'
   # The same "k" mark the index and ai-frontier serve, inline so there is no
   # extra request and no file to keep in sync across the three repos.
   printf '%s\n' "<link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%230e0f11'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%23fff' text-anchor='middle'%3Ek%3C/text%3E%3C/svg%3E\">"

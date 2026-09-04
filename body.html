@@ -1,7 +1,7 @@
 <title>Backprop to Frontier</title>
 
 <style>
-/* backprop-to-frontier — the tracker surface.
+/* backprop-to-frontier: the tracker surface.
 
    Colour tokens, the dark band, the breadcrumbs and the theme toggle are
    lifted verbatim from knewman23.github.io/styles.css so the portfolio,
@@ -389,7 +389,7 @@ footer.page a:hover { color: var(--accent); }
   <header class="hero">
     <p class="kicker">Self-study curriculum &middot; 2026</p>
     <h1>Backprop to Frontier</h1>
-    <p class="lede">A six-month route from <strong>Andrew Ng's classical ML</strong> to <strong>training language models from scratch</strong>. Everything here is a real course with public materials &mdash; no survey videos, no paid bootcamps. Check items off as you go; progress saves in this browser.</p>
+    <p class="lede">A six-month route from <strong>Andrew Ng's classical ML</strong> to <strong>training language models from scratch</strong>. Everything here is a real course with public materials. No survey videos, no paid bootcamps. Check items off as you go; progress saves in this browser.</p>
     <div class="stats">
       <div class="stat"><span class="stat-n" id="statDone">0</span><span class="stat-l">Items done</span></div>
       <div class="stat"><span class="stat-n" id="statTotal">0</span><span class="stat-l">Total items</span></div>
@@ -415,8 +415,8 @@ footer.page a:hover { color: var(--accent); }
       <p class="stage-why">Skip this unless matrix calculus feels rusty. You need enough linear algebra to read a shape mismatch and enough calculus to trust the chain rule. Nothing more.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
-        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-la"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown &mdash; Essence of Linear Algebra<small>15 short videos. Watch at 1.25x.</small></span><span class="check-time">4h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-calc"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown &mdash; Essence of Calculus<small>Chapters 1&ndash;4 are the load-bearing ones.</small></span><span class="check-time">3h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-la"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown: Essence of Linear Algebra<small>15 short videos. Watch at 1.25x.</small></span><span class="check-time">4h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s0-3b1b-calc"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">3Blue1Brown: Essence of Calculus<small>Chapters 1&ndash;4 are the load-bearing ones.</small></span><span class="check-time">3h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s0-mml"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">MML book, Ch. 2, 5, 6<small>Linear algebra, vector calculus, probability. Free PDF.</small></span><span class="check-time">10h</span></label></li>
       </ul>
     </div>
@@ -428,13 +428,13 @@ footer.page a:hover { color: var(--accent); }
     <div>
       <div class="stage-head">
         <h3>Build the primitives by hand</h3>
-        <p class="stage-src"><a href="https://karpathy.ai/zero-to-hero.html" target="_blank" rel="noopener">Karpathy &mdash; Neural Networks: Zero to Hero</a></p>
+        <p class="stage-src"><a href="https://karpathy.ai/zero-to-hero.html" target="_blank" rel="noopener">Karpathy's Neural Networks: Zero to Hero</a></p>
       </div>
       <div class="tags"><span class="tag free">Free</span><span class="tag">Bottom-up</span><span class="tag time">6 weeks</span></div>
-      <p class="stage-why">The single best bridge from classical ML to modern AI. You write backprop, then a tokenizer, then a GPT, in bare Python and PyTorch. Retype every line &mdash; watching this does nothing.</p>
+      <p class="stage-why">The single best bridge from classical ML to modern AI. You write backprop, then a tokenizer, then a GPT, in bare Python and PyTorch. Retype every line. Watching this does nothing.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
-        <li><label class="check"><input type="checkbox" data-key="s1-micrograd"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">micrograd &mdash; backprop from scratch<small>An autograd engine in ~100 lines. <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">repo</a></small></span><span class="check-time">6h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s1-micrograd"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">micrograd, backprop from scratch<small>An autograd engine in ~100 lines. <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">repo</a></small></span><span class="check-time">6h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s1-makemore12"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">makemore, parts 1&ndash;3<small>Bigrams &rarr; MLP &rarr; activations, gradients, BatchNorm.</small></span><span class="check-time">12h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s1-makemore45"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">makemore, parts 4&ndash;5<small>Manual backprop through the whole net, then WaveNet.</small></span><span class="check-time">8h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s1-gpt"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Let's build GPT: from scratch, in code<small>The centerpiece. Self-attention, blocks, the full transformer.</small></span><span class="check-time">8h</span></label></li>
@@ -450,16 +450,16 @@ footer.page a:hover { color: var(--accent); }
     <div>
       <div class="stage-head">
         <h3>Learn to ship models</h3>
-        <p class="stage-src"><a href="https://course.fast.ai/" target="_blank" rel="noopener">fast.ai &mdash; Practical Deep Learning for Coders</a></p>
+        <p class="stage-src"><a href="https://course.fast.ai/" target="_blank" rel="noopener">fast.ai: Practical Deep Learning for Coders</a></p>
       </div>
       <div class="tags"><span class="tag free">Free</span><span class="tag">Top-down</span><span class="tag time">8 weeks</span></div>
-      <p class="stage-why">The opposite pedagogy from Stage 1: working model in lesson one, theory later. Doing both is the point &mdash; you get intuition for what actually moves a metric, not just what the math says.</p>
+      <p class="stage-why">The opposite pedagogy from Stage 1: working model in lesson one, theory later. Doing both is the point: you get intuition for what actually moves a metric, not just what the math says.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
         <li><label class="check"><input type="checkbox" data-key="s2-p1a"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 1, lessons 1&ndash;4<small>Vision, deployment, SGD, NLP with transformers.</small></span><span class="check-time">16h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s2-p1b"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 1, lessons 5&ndash;9<small>Tabular, collaborative filtering, convnets, ethics.</small></span><span class="check-time">20h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s2-project"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Ship one model of your own<small>Your data, deployed publicly. This is the item that gets skipped &mdash; don't.</small></span><span class="check-time">12h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s2-p2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 2 &mdash; Stable Diffusion from scratch<small>Rebuilds a diffusion model from the paper up.</small></span><span class="check-time">30h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s2-project"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Ship one model of your own<small>Your data, deployed publicly. This is the item that gets skipped. Don't.</small></span><span class="check-time">12h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s2-p2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Part 2: Stable Diffusion from scratch<small>Rebuilds a diffusion model from the paper up.</small></span><span class="check-time">30h</span></label></li>
       </ul>
     </div>
   </section>
@@ -470,17 +470,17 @@ footer.page a:hover { color: var(--accent); }
     <div>
       <div class="stage-head">
         <h3>Language modeling, all the way down</h3>
-        <p class="stage-src"><a href="https://stanford-cs336.github.io/" target="_blank" rel="noopener">Stanford CS336 &mdash; Language Modeling from Scratch</a></p>
+        <p class="stage-src"><a href="https://stanford-cs336.github.io/" target="_blank" rel="noopener">Stanford CS336: Language Modeling from Scratch</a></p>
       </div>
       <div class="tags"><span class="tag free">Free materials</span><span class="tag">Hardest</span><span class="tag time">10 weeks</span></div>
-      <p class="stage-why">The nitty-gritty you asked for. Lectures and assignments are public. Students build a tokenizer, a transformer, a training loop, kernels, distributed training and alignment &mdash; nothing imported that could be written. Budget 15h/week and expect it to hurt.</p>
+      <p class="stage-why">The nitty-gritty you asked for. Lectures and assignments are public. Students build a tokenizer, a transformer, a training loop, kernels, distributed training and alignment, with nothing imported that could be written. Budget 15h/week and expect it to hurt.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
-        <li><label class="check"><input type="checkbox" data-key="s3-a1"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 1 &mdash; Basics<small>BPE tokenizer, transformer, optimizer, training loop. From zero.</small></span><span class="check-time">35h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s3-a2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 2 &mdash; Systems<small>Triton kernels, FlashAttention, distributed data parallel.</small></span><span class="check-time">30h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s3-a3"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 3 &mdash; Scaling laws<small>Fit a scaling law, then spend a compute budget with it.</small></span><span class="check-time">15h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s3-a4"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 4 &mdash; Data<small>Filtering, dedup, quality classifiers. Where most real gains live.</small></span><span class="check-time">20h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s3-a5"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 5 &mdash; Alignment &amp; RL<small>SFT, then policy-gradient post-training.</small></span><span class="check-time">25h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a1"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 1: Basics<small>BPE tokenizer, transformer, optimizer, training loop. From zero.</small></span><span class="check-time">35h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a2"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 2: Systems<small>Triton kernels, FlashAttention, distributed data parallel.</small></span><span class="check-time">30h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a3"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 3: Scaling laws<small>Fit a scaling law, then spend a compute budget with it.</small></span><span class="check-time">15h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a4"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 4: Data<small>Filtering, dedup, quality classifiers. Where most real gains live.</small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s3-a5"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Assignment 5: Alignment &amp; RL<small>SFT, then policy-gradient post-training.</small></span><span class="check-time">25h</span></label></li>
       </ul>
     </div>
   </section>
@@ -491,16 +491,16 @@ footer.page a:hover { color: var(--accent); }
     <div>
       <div class="stage-head">
         <h3>Fill the gaps</h3>
-        <p class="stage-src">Pick one or two &mdash; whichever your work actually needs</p>
+        <p class="stage-src">Pick one or two, whichever your work actually needs</p>
       </div>
       <div class="tags"><span class="tag free">Free</span><span class="tag">Elective</span><span class="tag time">4 weeks</span></div>
-      <p class="stage-why">By now you can read any of these at speed. Choose by need, not completeness. Reinforcement learning is the one most worth doing even if it isn't obviously relevant &mdash; post-training runs on it.</p>
+      <p class="stage-why">By now you can read any of these at speed. Choose by need, not completeness. Reinforcement learning is the one most worth doing even if it isn't obviously relevant, because post-training runs on it.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
-        <li><label class="check"><input type="checkbox" data-key="s4-rl"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">OpenAI &mdash; Spinning Up in Deep RL<small>Best free RL on-ramp, with implementations. <a href="https://spinningup.openai.com/" target="_blank" rel="noopener">spinningup.openai.com</a></small></span><span class="check-time">20h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s4-cs224n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS224N &mdash; NLP with Deep Learning<small>Lectures on YouTube. <a href="https://web.stanford.edu/class/cs224n/" target="_blank" rel="noopener">course site</a></small></span><span class="check-time">25h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s4-cs231n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS231N &mdash; Computer Vision<small>Still the reference convnet course. <a href="https://cs231n.stanford.edu/" target="_blank" rel="noopener">cs231n.stanford.edu</a></small></span><span class="check-time">25h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s4-mit"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">MIT 6.S191 &mdash; Intro to Deep Learning<small>Re-shot every January, so it stays current. <a href="http://introtodeeplearning.com/" target="_blank" rel="noopener">introtodeeplearning.com</a></small></span><span class="check-time">12h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-rl"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">OpenAI: Spinning Up in Deep RL<small>Best free RL on-ramp, with implementations. <a href="https://spinningup.openai.com/" target="_blank" rel="noopener">spinningup.openai.com</a></small></span><span class="check-time">20h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-cs224n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS224N: NLP with Deep Learning<small>Lectures on YouTube. <a href="https://web.stanford.edu/class/cs224n/" target="_blank" rel="noopener">course site</a></small></span><span class="check-time">25h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-cs231n"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Stanford CS231N: Computer Vision<small>Still the reference convnet course. <a href="https://cs231n.stanford.edu/" target="_blank" rel="noopener">cs231n.stanford.edu</a></small></span><span class="check-time">25h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s4-mit"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">MIT 6.S191: Intro to Deep Learning<small>Re-shot every January, so it stays current. <a href="http://introtodeeplearning.com/" target="_blank" rel="noopener">introtodeeplearning.com</a></small></span><span class="check-time">12h</span></label></li>
       </ul>
     </div>
   </section>
@@ -514,12 +514,12 @@ footer.page a:hover { color: var(--accent); }
         <p class="stage-src">Hugging Face courses, provider cookbooks, and a weekly paper habit</p>
       </div>
       <div class="tags"><span class="tag free">Free</span><span class="tag">Ongoing</span><span class="tag time">Permanent</span></div>
-      <p class="stage-why">Courses lag the field by a year or more. This stage never finishes &mdash; it's the habit that keeps the rest from going stale. One paper a week, read properly, beats fifty skimmed.</p>
+      <p class="stage-why">Courses lag the field by a year or more. This stage never finishes: it's the habit that keeps the rest from going stale. One paper a week, read properly, beats fifty skimmed.</p>
       <div class="stage-bar"><i></i></div>
       <ul class="checks">
         <li><label class="check"><input type="checkbox" data-key="s5-hf-llm"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Hugging Face LLM Course<small>Transformers, fine-tuning, datasets. <a href="https://huggingface.co/learn/llm-course" target="_blank" rel="noopener">huggingface.co/learn</a></small></span><span class="check-time">20h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s5-hf-agents"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Hugging Face Agents Course<small>Tool use, planning loops, agent evaluation.</small></span><span class="check-time">15h</span></label></li>
-        <li><label class="check"><input type="checkbox" data-key="s5-cookbook"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Work through a provider cookbook<small><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener">Anthropic</a> or <a href="https://github.com/openai/openai-cookbook" target="_blank" rel="noopener">OpenAI</a> &mdash; the practical layer courses skip.</small></span><span class="check-time">10h</span></label></li>
+        <li><label class="check"><input type="checkbox" data-key="s5-cookbook"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Work through a provider cookbook<small><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener">Anthropic</a> or <a href="https://github.com/openai/openai-cookbook" target="_blank" rel="noopener">OpenAI</a> . The practical layer courses skip.</small></span><span class="check-time">10h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s5-evals"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Build an eval suite for something you shipped<small>The skill that separates people who ship LLM features from people who demo them.</small></span><span class="check-time">15h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s5-papers"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Read the eight foundational papers<small>Attention Is All You Need, GPT-2/3, InstructGPT, Chinchilla, LoRA, DPO, and one recent frontier model card.</small></span><span class="check-time">20h</span></label></li>
         <li><label class="check"><input type="checkbox" data-key="s5-habit"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span><span class="check-text">Establish the weekly paper habit<small>Same slot every week for four weeks straight. Then it sticks.</small></span><span class="check-time">4wk</span></label></li>
@@ -532,7 +532,7 @@ footer.page a:hover { color: var(--accent); }
     <h2>Books to download</h2>
     <span class="note">Five of seven are free and legal</span>
   </div>
-  <p class="sec-intro">Pick <em>one</em> as your standing reference and read it alongside the stages &mdash; not before them. The free ones are author-published PDFs, not pirated copies.</p>
+  <p class="sec-intro">Pick <em>one</em> as your standing reference and read it alongside the stages, not before them. The free ones are author-published PDFs, not pirated copies.</p>
 
   <div class="books">
     <label class="book"><input type="checkbox" data-key="bk-prince"><span class="box"><svg viewBox="0 0 16 16"><polyline points="2.5,8.5 6.5,12.5 13.5,3.5"></polyline></svg></span>
@@ -566,7 +566,7 @@ footer.page a:hover { color: var(--accent); }
       <div>
         <div class="book-title">Probabilistic Machine Learning</div>
         <div class="book-author">Kevin P. Murphy &middot; two volumes</div>
-        <p class="book-note">The encyclopedia. Not a read-through &mdash; a place to look things up when a paper assumes you know them. &rarr; <a href="https://probml.github.io/pml-book/" target="_blank" rel="noopener">probml.github.io/pml-book</a></p>
+        <p class="book-note">The encyclopedia. Not a read-through, but a place to look things up when a paper assumes you know them. &rarr; <a href="https://probml.github.io/pml-book/" target="_blank" rel="noopener">probml.github.io/pml-book</a></p>
       </div>
       <div class="book-meta"><span class="tag free">Free PDF</span></div>
     </label>
@@ -575,7 +575,7 @@ footer.page a:hover { color: var(--accent); }
       <div>
         <div class="book-title">Deep Learning</div>
         <div class="book-author">Goodfellow, Bengio &amp; Courville &middot; 2016</div>
-        <p class="book-note">Predates transformers, so it is history rather than reference &mdash; but Part II on optimization and regularization has not been bettered. &rarr; <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a></p>
+        <p class="book-note">Predates transformers, so it is history rather than reference, but Part II on optimization and regularization has not been bettered. &rarr; <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a></p>
       </div>
       <div class="book-meta"><span class="tag free">Free HTML</span></div>
     </label>
@@ -602,7 +602,7 @@ footer.page a:hover { color: var(--accent); }
   <!-- ================= STAY CURRENT ================= -->
   <div class="sec-head">
     <h2>Staying current</h2>
-    <span class="note">No checkboxes &mdash; these are habits</span>
+    <span class="note">No checkboxes, these are habits</span>
   </div>
   <p class="sec-intro">Courses run 12&ndash;18 months behind the field. These are where the gap gets closed.</p>
 
