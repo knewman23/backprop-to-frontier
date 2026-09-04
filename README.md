@@ -15,3 +15,16 @@ leaves the machine.
 ```sh
 ./build.sh   # wraps body.html in the page skeleton -> index.html
 ```
+
+## Theming
+
+The colour tokens, the dark band, the breadcrumbs and the theme toggle are
+lifted from [knewman23.github.io](https://github.com/knewman23/knewman23.github.io)
+so the index, [ai-frontier](https://github.com/knewman23/ai-frontier) and this
+page are one system. Every colour is a token on `:root`, overridden in exactly
+three places — `[data-theme="dark"]`, the `prefers-color-scheme` block, and
+nowhere else.
+
+All three sites share the `theme` localStorage key on the same origin, so a
+light/dark choice made on any of them carries to the others. `fonts/` holds the
+same Space Grotesk and IBM Plex Mono files the index serves.
